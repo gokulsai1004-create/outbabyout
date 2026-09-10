@@ -1,11 +1,11 @@
-# vishamrit
+# Out Baby Out
 
 **Real-life tag, scored from a log a human can write while the game is happening.**
 
 Two teams, a timer. You freeze someone by getting close to them — *vish*. A teammate who reaches them brings them back — *amrit*. Whoever has more players standing when the timer ends wins.
 
 ```
-py -3 vishamrit.py match.txt --html
+py -3 outbabyout.py match.txt --html
 ```
 
 ```
@@ -55,7 +55,7 @@ That is not politeness. A match that scores 3–2 because two tags were unreadab
 - events out of order, or after full time
 - a line that is not a team, a `LENGTH`, or an event
 
-`py -3 vishamrit.py --check` runs all of it. The checks were verified by breaking the logic and confirming they fail.
+`py -3 outbabyout.py --check` runs all of it. The checks were verified by breaking the logic and confirming they fail.
 
 ## What it is not
 

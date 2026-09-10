@@ -13,10 +13,10 @@ at all - ten people in a park, tags called out loud, someone writing lines on
 their phone. This reads that. It will read a phone's output later without
 changing, because the format is the same either way.
 
-    py -3 vishamrit.py match.txt          score it
-    py -3 vishamrit.py match.txt --html   also write match.html
-    py -3 vishamrit.py --example          write an example log to start from
-    py -3 vishamrit.py --check            run the self-check
+    py -3 outbabyout.py match.txt          score it
+    py -3 outbabyout.py match.txt --html   also write match.html
+    py -3 outbabyout.py --example          write an example log to start from
+    py -3 outbabyout.py --check            run the self-check
 
 A log looks like this:
 
@@ -357,7 +357,7 @@ def main():
             return 2
         with io.open("match.txt", "w", encoding="utf-8", newline="\n") as fh:
             fh.write(EXAMPLE)
-        print("  wrote match.txt - edit it, then: py -3 vishamrit.py match.txt")
+        print("  wrote match.txt - edit it, then: py -3 outbabyout.py match.txt")
         return 0
 
     if not args.log:
