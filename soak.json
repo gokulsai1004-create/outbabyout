@@ -1,0 +1,29 @@
+{
+ "rounds": 145,
+ "minutes": 10.1,
+ "blocked": "",
+ "beacons": {
+  "fan A": {
+   "n": 145,
+   "median": -68,
+   "min": -78,
+   "max": -43,
+   "spread": 35,
+   "stdev": 11.1,
+   "stderr": 0.92,
+   "missed_rounds": 0
+  },
+  "fan B": {
+   "n": 138,
+   "median": -76.0,
+   "min": -88,
+   "max": -70,
+   "spread": 18,
+   "stdev": 6.9,
+   "stderr": 0.58,
+   "missed_rounds": 7
+  }
+ },
+ "overlap": true,
+ "median_gap": 8.0
+}

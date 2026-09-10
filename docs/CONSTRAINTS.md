@@ -42,6 +42,34 @@ standard error of the median to about **1.1 dBm**, and two beacons at different 
 separated by 12 dBm at the median — while their **raw ranges still overlapped**. So the
 median is usable and any individual reading is not.
 
+**Then the ten-minute soak settled it. 145 rounds, nothing moving:**
+
+| | fan A | fan B |
+|---|---|---|
+| median | −68 | −76 |
+| spread | **35 dBm** (−78 to −43) | 18 dBm |
+| stdev | 11.1 | 6.9 |
+| stderr of median | 0.92 | 0.58 |
+
+Ranges overlap. **The two beacons' medians differ by only 8 dBm while a single stationary
+beacon swings 35.** The longer the window, the worse the spread got — 24 dBm over ten
+readings, 35 over 145.
+
+Working out what that costs: separating an 8 dBm gap against a stdev of 11.1 needs about
+**31 samples**, arriving at the observed 14.4 per minute, so a confident call takes about
+**two minutes**.
+
+> **A tag has to fire in about two seconds. RSSI needs about two minutes. That is a 60x
+> gap, and it is not closeable by tuning.**
+
+**So the tag is not a radio measurement. It should be a scan.** A QR code on the target's
+screen, or an NFC tap. That is instant, cannot be faked from across the street, needs no
+background advertising, does not care that addresses rotate, works on every phone, and
+costs no battery. It also matches the real game: you are standing right in front of the
+person when you tag them.
+
+Keep `ruler.py` and `soak.py`. They are the evidence for why the design is what it is.
+
 **Phones do not appear in a plain scan.** A twenty-second scan of this room found two
 ceiling fans advertising steadily and several devices with rotating addresses seen only a
 few times each. Phones randomise their Bluetooth address for privacy and do not advertise
