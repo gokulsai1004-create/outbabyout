@@ -265,12 +265,19 @@ letter-spacing:.11em;text-transform:uppercase;}
 .pip.down{background:var(--vish);}
 .who{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));
 gap:.9rem;margin:0 0 2.4rem;}
-.stat{border-left:3px solid var(--line);padding:.1rem 0 .1rem 1rem;}
-.stat.v{border-color:var(--vish);} .stat.a{border-color:var(--amrit);}
-.stat em{display:block;font-style:normal;color:var(--dim);
-font:700 .68rem/1.5 "JetBrains Mono",ui-monospace,Consolas,monospace;
+/* A coloured dot, not a coloured left rail. The rail on a card is one of the
+   tells that a page was generated rather than designed, and the dot reuses the
+   pip language already on this page instead of inventing a second device. */
+.stat em{display:flex;align-items:center;gap:.45rem;font-style:normal;
+color:var(--dim);font:700 .68rem/1.5 "JetBrains Mono",ui-monospace,Consolas,monospace;
 letter-spacing:.1em;text-transform:uppercase;}
+.stat em::before{content:"";width:.5rem;height:.5rem;border-radius:50%%;
+background:var(--line);flex:none;}
+.stat.v em::before{background:var(--vish);}
+.stat.a em::before{background:var(--amrit);}
 .stat strong{font-size:1.06rem;font-weight:600;}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;
+animation:none!important;}}
 h2{font:400 1.3rem/1 Anton,Impact,sans-serif;text-transform:uppercase;
 letter-spacing:.02em;margin:0 0 .9rem;}
 table{width:100%%;border-collapse:collapse;font-size:.97rem;}
