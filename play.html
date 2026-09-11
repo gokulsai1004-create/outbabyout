@@ -401,6 +401,16 @@ a{color:var(--hot);}
       d.querySelector("span").textContent = c[1];
       host.appendChild(d);
     });
+    if (S.demo){
+      var n = document.createElement("p");
+      n.className = "note";
+      n.style.margin = ".8rem 0 0";
+      n.textContent = "The demo squeezes a twenty minute match into twenty seconds, " +
+        "so two of these read as stalled. That is the measurement working on a fake " +
+        "match, not the game failing. In a real one they are the test of whether the " +
+        "revive rule kept it alive to the whistle.";
+      host.appendChild(n);
+    }
   }
 
   // ---- wiring ------------------------------------------------------------
