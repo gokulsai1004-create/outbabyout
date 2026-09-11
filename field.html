@@ -29,6 +29,10 @@ h1{font:400 1.9rem/0.9 Anton,Impact,sans-serif;text-transform:uppercase;
 
 #map{flex:1 1 auto;min-height:14rem;background:var(--panel);}
 .leaflet-container{background:var(--panel);font-family:inherit;}
+/* OpenStreetMap's own tiles need no key, but they are drawn light. Darkening
+   them here rather than paying for a dark basemap: the filter is on the tile
+   pane only, so the boundary and the start pins keep their real colours. */
+.leaflet-tile-pane{filter:grayscale(1) invert(1) brightness(.78) contrast(1.25);}
 .leaflet-control-attribution{background:rgba(15,19,16,.82)!important;color:var(--dim)!important;
   font-size:10px!important;}
 .leaflet-control-attribution a{color:var(--dim)!important;}
@@ -162,9 +166,9 @@ a{color:var(--hot);}
   // ---- map ---------------------------------------------------------------
   var map = L.map("map", { zoomControl: true, attributionControl: true })
              .setView(S.c, 17);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-    maxZoom: 20, subdomains: "abcd",
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
 
   var ring = L.circle(S.c, {
