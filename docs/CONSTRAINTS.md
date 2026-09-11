@@ -89,6 +89,27 @@ exits 2. **Do not "fix" this by catching it and returning an empty list** — an
 adapter would then print as a quiet room, which is the single bug this whole project
 exists to avoid.
 
+## Third-party services, 11 Sept 2026
+
+**A service that needed no key when you chose it can start needing one.** The field map
+was built on CARTO's dark basemap because it matched the palette. CARTO now requires an
+API key and stamps **API KEY REQUIRED** across every tile served without one. It rendered
+fine in the local check and was caught by Gokul opening it on his own phone.
+
+> Before using any third-party URL, check whether it requires a key **today**, and write
+> the answer here with the date.
+
+Replaced with `https://tile.openstreetmap.org/{z}/{x}/{y}.png`, which needs no key and
+has none to expire. It is drawn light, so `.leaflet-tile-pane` carries a CSS filter
+rather than paying for a dark basemap. Attribution is required and is present.
+
+**Check the deployed URL, not the local file.** They are different origins with different
+caches. The watermark got past a local check because those tiles were already cached; a
+clean phone showed it immediately. Push, wait for the Pages build, then look.
+
+**Nominatim** (the search box) needs no key either, asks for roughly one request a second,
+and identifies callers by browser Referer, which a normal page supplies.
+
 ## Rules of this codebase
 
 **A failed read is never a result.** Everywhere: an unreadable log is BLOCKED and exits 2,

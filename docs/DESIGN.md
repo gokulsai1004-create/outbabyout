@@ -50,6 +50,16 @@ this project prints is a measurement.
 
 Labels above a block are mono, uppercase, `letter-spacing: .09em`, in `--dim`.
 
+## Maps
+
+Tiles come from OpenStreetMap, which needs no key, and are darkened with a CSS filter on
+`.leaflet-tile-pane` only, so the boundary and the pins keep their real colours. A paid
+dark basemap is not worth a dependency that can start asking for money.
+
+**Team markers are `--hot` and `--chalk`, never `--vish` or `--amrit`.** Red means caught
+and green means brought back; using either for a team would break the one rule that makes
+the match timeline readable at a glance.
+
 ## Rules
 
 - Nothing animates. There is no state worth a transition here.

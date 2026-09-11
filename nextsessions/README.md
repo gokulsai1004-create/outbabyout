@@ -5,8 +5,9 @@ and leave them in their lanes.
 
 | | Owns | Prompt |
 |---|---|---|
-| **Engine** | The match, scoring, the permanent page. No radio, ever. | [`ENGINE-PROMPT.md`](ENGINE-PROMPT.md) |
-| **Radio** | Bluetooth, measurement, whether a tag can be called at all. | [`RADIO-PROMPT.md`](RADIO-PROMPT.md) |
+| **Engine** | `outbabyout.py`. The match, scoring, the permanent page. No radio, ever. | [`ENGINE-PROMPT.md`](ENGINE-PROMPT.md) |
+| **Web** | `index.html`, `play.html`, `field.html`. Everything a person opens. | [`WEB-PROMPT.md`](WEB-PROMPT.md) |
+| **Radio** | `ruler.py`, `soak.py`. Closed: the question it existed for is answered. | [`RADIO-PROMPT.md`](RADIO-PROMPT.md) |
 
 Read [`../docs/CONSTRAINTS.md`](../docs/CONSTRAINTS.md) before either. It is the list of
 things already tried and already failed, so a session does not spend an hour rediscovering
@@ -32,9 +33,12 @@ finds itself reading dBm, the line has been crossed.
 
 ## Before you paste
 
-- Both sessions commit after every change and **never push**. Gokul pushes.
+- Every session commits after every change. **Push only when Gokul says so.** On this
+  project he asks for pushes often, because the pages have to be live to be tested at
+  all, so a requested push is normal here and a silent one is not.
 - Update the "current state" line in each prompt when it goes stale. A prompt that claims
-  two commits when there are nine teaches the session that the file is not to be trusted.
+  nine commits when there are sixteen teaches the session that the file is not to be
+  trusted. This has already happened once on this repo, which is why it is written twice.
 - If a session learns something that cost it more than twenty minutes, it adds a line to
   `docs/CONSTRAINTS.md` before finishing. That file is the reason the next session is
   faster than this one.

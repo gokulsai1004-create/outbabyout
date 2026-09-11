@@ -1,7 +1,8 @@
 # Out Baby Out — engine session
 
-You own `outbabyout.py`, `docs/` and the tests. The radio session owns `ruler.py` and
-`soak.py`. Do not touch those, and do not import `bleak` — the engine must stay provable
+You own `outbabyout.py`, `docs/` and the tests. The web session owns the three HTML
+pages, the radio session owns `ruler.py` and `soak.py`. Do not touch either, and do not
+import `bleak` — the engine must stay provable
 on a machine with no Bluetooth adapter.
 
 ## Read first
@@ -12,9 +13,14 @@ on a machine with no Bluetooth adapter.
 
 ## Current state, 11 Sept 2026 — PAUSED
 
-**Nine commits, all pushed, working tree clean.** Paused deliberately while Gokul and
-Dhrishaj start the opportunity-agent build; this is not abandoned and the next step is
-known. Live rules page: https://gokulsai1004-create.github.io/outbabyout/
+**Sixteen commits, all pushed, working tree clean.** Paused deliberately while Gokul
+and Dhrishaj start the opportunity-agent build; this is not abandoned and the next step
+is known.
+
+There are now three pages live at https://gokulsai1004-create.github.io/outbabyout/ -
+the rules, a live match console and a field map. They belong to the web session, see
+`WEB-PROMPT.md`. You do not edit them and they do not edit you. The only thing crossing
+that line is the log format: the console prints exactly what this engine reads.
 
 `py -3 outbabyout.py --check` passes: the example match end to end plus **eleven
 refusals** — unknown player, player on two teams, tagging a teammate, reviving an enemy,
@@ -97,6 +103,7 @@ Then, and only then:
 - `py -3 outbabyout.py --check` after every change. Keep it green.
 - When you add a rule, add its refusal to the self-check, then **prove the check bites**:
   remove the rule, confirm the check fails, put it back.
-- **Commit after every change. Never push.** Gokul pushes.
+- **Commit after every change.** Push only when Gokul says so; on this project he asks
+  often, because the pages have to be live to be tested at all.
 - If something costs you more than twenty minutes, add a line to `docs/CONSTRAINTS.md`
   before you finish.

@@ -9,11 +9,17 @@ the entire interface between the two halves.
 `docs/CONSTRAINTS.md`, in full, before touching anything. The Bluetooth section is
 measured, not assumed, and it already rules out the obvious design.
 
-## Current state, 10 Sept 2026
+## Current state, 11 Sept 2026 - ANSWERED AND CLOSED
+
+**This lane has finished its job and should not be reopened without a reason.** The
+question it existed to answer has been answered, the answer is no, and the design
+changed accordingly: the tag is a scan, not a radio measurement. `docs/CONSTRAINTS.md`
+carries the numbers so nobody repeats the experiment.
 
 `ruler.py` scans, tracks one device live, samples at a marked distance into `rssi.json`,
 and gives a verdict on whether near and far separate. `soak.py` runs unattended for ten
-minutes against two fixed ceiling-fan beacons.
+minutes against two fixed ceiling-fan beacons. Both stay in the repo as the evidence for
+why the design is what it is.
 
 Measured so far, laptop and beacon both **stationary**:
 
@@ -68,4 +74,4 @@ That is a number. Go and get it.
 - Every claim is a measurement with an n, a median and a spread. No "it seems to".
 - Anything measured goes into `docs/CONSTRAINTS.md` as a fact with its date, so the next
   session does not repeat the experiment.
-- **Commit after every change. Never push.** Gokul pushes.
+- **Commit after every change.** Push only when Gokul says so.
