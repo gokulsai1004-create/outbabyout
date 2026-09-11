@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Out Baby Out — live match</title>
+<meta name="description" content="Run a real match of Out Baby Out from your phone. Two taps a move, rules enforced live.">
+<meta property="og:title" content="Out Baby Out — live match">
+<meta property="og:description" content="Two taps a move. The clock, the score and the rules, on the phone of whoever is frozen.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --field:#0F1310; --panel:#191E17; --chalk:#F2F4E9; --dim:#8C9682;
+  --line:#2C352A; --vish:#E0523B; --amrit:#5FD08A; --hot:#E8FF3F;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{
+  margin:0;background:var(--field);color:var(--chalk);
+  font:400 17px/1.5 "Instrument Sans","Segoe UI",system-ui,sans-serif;
+  padding:max(1rem,env(safe-area-inset-top)) 1rem max(1.5rem,env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;overscroll-behavior:none;
+}
+.wrap{max-width:34rem;margin:0 auto;}
+h1{font:400 clamp(2.2rem,10vw,3.4rem)/0.85 Anton,Impact,sans-serif;
+   text-transform:uppercase;color:var(--hot);margin:0 0 .3rem;}
+.sub{color:var(--dim);margin:0 0 1.6rem;
+     font:700 .72rem/1.5 "JetBrains Mono",ui-monospace,Consolas,monospace;
+     letter-spacing:.09em;text-transform:uppercase;}
+label{display:block;color:var(--dim);margin:0 0 .4rem;
+      font:700 .7rem/1 "JetBrains Mono",ui-monospace,monospace;
+      letter-spacing:.1em;text-transform:uppercase;}
+input,textarea{
+  width:100%;background:var(--panel);color:var(--chalk);
+  border:2px solid var(--line);border-radius:5px;padding:.8rem .9rem;
+  font:400 1rem/1.4 "Instrument Sans",system-ui,sans-serif;margin:0 0 1.1rem;
+}
+textarea{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.86rem;
+         min-height:9rem;resize:vertical;}
+input:focus,textarea:focus{outline:none;border-color:var(--hot);}
+button{font:inherit;cursor:pointer;border-radius:5px;border:2px solid var(--line);
+       background:var(--panel);color:var(--chalk);}
+.big{width:100%;padding:1rem;background:var(--hot);color:#12160F;border-color:var(--hot);
+     font:400 1.5rem/1 Anton,Impact,sans-serif;text-transform:uppercase;letter-spacing:.02em;}
+.ghost{width:100%;padding:.8rem;color:var(--dim);margin-top:.7rem;font-size:.95rem;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
+
+/* clock */
+.clock{display:flex;align-items:baseline;justify-content:space-between;
+       border-bottom:1px solid var(--line);padding-bottom:.7rem;margin-bottom:1rem;}
+.t{font:400 3.2rem/1 Anton,Impact,sans-serif;font-variant-numeric:tabular-nums;}
+.t.low{color:var(--vish);}
+.tally{font:700 .8rem/1.4 "JetBrains Mono",ui-monospace,monospace;color:var(--dim);
+       text-align:right;letter-spacing:.06em;}
+
+/* teams */
+.team{margin-bottom:1.1rem;}
+.tname{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.5rem;}
+.tname b{font:400 1.3rem/1 Anton,Impact,sans-serif;text-transform:uppercase;letter-spacing:.02em;}
+.tname span{font:700 .95rem/1 "JetBrains Mono",monospace;color:var(--dim);}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(7.2rem,1fr));gap:.5rem;}
+.chip{padding:.85rem .6rem;min-height:3rem;border:2px solid var(--line);background:var(--panel);
+      color:var(--chalk);font-size:.98rem;font-weight:500;text-align:center;
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.chip.down{border-color:var(--vish);color:var(--vish);text-decoration:line-through;
+           text-decoration-thickness:2px;}
+.chip.sel{border-color:var(--hot);color:var(--hot);}
+.chip:disabled{opacity:.32;cursor:default;}
+
+/* the prompt line does the teaching */
+.say{min-height:3.4rem;display:flex;align-items:center;padding:.7rem .9rem;
+     border:2px dashed var(--line);border-radius:5px;margin-bottom:1rem;
+     font-size:1rem;color:var(--dim);}
+.say b{color:var(--hot);}
+.say.no{border-style:solid;border-color:var(--vish);color:var(--vish);}
+.say.yes{border-style:solid;border-color:var(--amrit);color:var(--amrit);}
+
+/* feed */
+.feed{margin-top:1.2rem;border-top:1px solid var(--line);padding-top:.8rem;
+      max-height:11rem;overflow-y:auto;}
+.ev{display:grid;grid-template-columns:3.4rem 1fr;gap:.7rem;padding:.4rem 0;
+    font-size:.95rem;border-bottom:1px solid var(--line);}
+.ev:last-child{border-bottom:0;}
+.ev .at{font:400 .82rem/1.6 "JetBrains Mono",monospace;color:var(--dim);
+        font-variant-numeric:tabular-nums;}
+.ev .v{color:var(--vish);} .ev .a{color:var(--amrit);}
+
+/* result */
+.score{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:0 0 1.2rem;}
+.card{border:2px solid var(--line);border-radius:5px;background:var(--panel);padding:.9rem 1rem;}
+.card.won{border-color:var(--hot);} .card.won .n{color:var(--hot);}
+.card b{display:block;color:var(--dim);margin-bottom:.35rem;
+        font:700 .7rem/1 "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;}
+.n{font:400 2.6rem/1 Anton,Impact,sans-serif;font-variant-numeric:tabular-nums;}
+.n span{font-size:1rem;color:var(--dim);}
+.pips{display:flex;gap:.3rem;margin-top:.5rem;flex-wrap:wrap;}
+.pip{width:.6rem;height:.6rem;border-radius:50%;background:var(--amrit);}
+.pip.down{background:var(--vish);}
+.checks{border-top:1px solid var(--line);padding-top:.9rem;margin-top:.4rem;}
+.chk{display:flex;gap:.6rem;padding:.3rem 0;font-size:.94rem;align-items:baseline;}
+.chk i{font-style:normal;font:700 .68rem/1.6 "JetBrains Mono",monospace;
+       letter-spacing:.08em;flex:none;width:4.6rem;}
+.chk.ok i{color:var(--amrit);} .chk.bad i{color:var(--vish);}
+.hide{display:none;}
+p.note{color:var(--dim);font-size:.93rem;}
+a{color:var(--hot);}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ============ SETUP ============ -->
+<section id="setup">
+  <h1>Out Baby Out</h1>
+  <p class="sub">Live match &middot; two taps a move</p>
+
+  <div class="row2">
+    <div><label>Team one</label><input id="n1" value="RED" maxlength="12"></div>
+    <div><label>Team two</label><input id="n2" value="BLUE" maxlength="12"></div>
+  </div>
+  <label>Team one players, separated by commas</label>
+  <input id="p1" value="gokul, arjun, sai, meera, dev">
+  <label>Team two players</label>
+  <input id="p2" value="daniel, priya, rahul, kiran, anu">
+  <div class="row2">
+    <div><label>Minutes</label><input id="mins" type="number" value="20" min="1" max="90"></div>
+    <div><label>Where</label><input id="where" value="Gachibowli" maxlength="24"></div>
+  </div>
+
+  <button class="big" id="start">Start the match</button>
+  <button class="ghost" id="demo">Watch a 20 second demo instead</button>
+  <p class="note" style="margin-top:1.4rem">Nothing is sent anywhere and nothing is stored.
+  The phone is meant to live with whoever is frozen, because they are already
+  sitting still. <a href="./">The rules are here.</a></p>
+</section>
+
+<!-- ============ MATCH ============ -->
+<section id="match" class="hide">
+  <div class="clock">
+    <div class="t" id="t">20:00</div>
+    <div class="tally" id="tally">0 caught<br>0 back</div>
+  </div>
+
+  <div class="say" id="say">Tap whoever <b>did</b> it.</div>
+  <div id="teams"></div>
+
+  <button class="ghost" id="undo">Undo the last one</button>
+  <button class="ghost" id="finish">End the match now</button>
+  <div class="feed" id="feed"></div>
+</section>
+
+<!-- ============ RESULT ============ -->
+<section id="result" class="hide">
+  <h1 id="verdict">Red wins</h1>
+  <p class="sub" id="rsub"></p>
+  <div class="score" id="cards"></div>
+  <div class="checks" id="checks"></div>
+  <div class="feed" id="rfeed" style="max-height:none"></div>
+  <label style="margin-top:1.3rem">The log, in the format the scorer reads</label>
+  <textarea id="log" readonly></textarea>
+  <button class="big" id="copy">Copy the log</button>
+  <button class="ghost" id="again">New match</button>
+</section>
+
+</div>
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+
+  // ---- state -------------------------------------------------------------
+  var S = null;      // the whole match, or null before one starts
+  var tick = null;
+
+  function clock(s){
+    s = Math.max(0, Math.round(s));
+    return Math.floor(s/60) + ":" + String(s%60).padStart(2,"0");
+  }
+  function names(raw){
+    var seen = {}, out = [];
+    raw.split(",").forEach(function(x){
+      var n = x.trim().toLowerCase().replace(/\s+/g," ");
+      if (n && !seen[n]) { seen[n] = 1; out.push(n); }
+    });
+    return out;
+  }
+
+  function begin(cfg){
+    S = {
+      where: cfg.where, length: cfg.mins*60, started: Date.now(),
+      teams: cfg.teams, side: {}, frozen: {}, events: [], pick: null,
+      demo: !!cfg.demo, over: false
+    };
+    S.teams.forEach(function(t){
+      t.players.forEach(function(p){ S.side[p] = t.name; });
+    });
+    $("setup").classList.add("hide");
+    $("result").classList.add("hide");
+    $("match").classList.remove("hide");
+    drawTeams(); paint();
+    clearInterval(tick);
+    tick = setInterval(paint, 250);
+  }
+
+  function elapsed(){ return (Date.now() - S.started) / 1000; }
+
+  // ---- the board ---------------------------------------------------------
+  function drawTeams(){
+    var host = $("teams"); host.innerHTML = "";
+    S.teams.forEach(function(t){
+      var box = document.createElement("div"); box.className = "team";
+      var head = document.createElement("div"); head.className = "tname";
+      head.innerHTML = "<b></b><span></span>";
+      head.querySelector("b").textContent = t.name;
+      box.appendChild(head);
+      var chips = document.createElement("div"); chips.className = "chips";
+      t.players.forEach(function(p){
+        var b = document.createElement("button");
+        b.className = "chip"; b.textContent = p; b.dataset.p = p;
+        b.addEventListener("click", function(){ tap(p); });
+        chips.appendChild(b);
+      });
+      box.appendChild(chips); host.appendChild(box);
+      t.el = { head: head.querySelector("span"), chips: chips };
+    });
+  }
+
+  // Two taps: who did it, then who it happened to. The app works out which
+  // move it was, because in a park nobody is choosing from a menu.
+  function tap(p){
+    if (S.over) return;
+    if (S.pick === null){
+      if (S.frozen[p]) return say("no", p + " is frozen and cannot do anything.");
+      S.pick = p; return paint();
+    }
+    if (p === S.pick){ S.pick = null; return paint(); }
+
+    var a = S.pick, sameSide = S.side[a] === S.side[p];
+    if (sameSide && !S.frozen[p])
+      return say("no", p + " is on " + S.side[a] + " too, and is not frozen.");
+    if (!sameSide && S.frozen[p])
+      return say("no", p + " is already frozen. Somebody on their own team frees them.");
+
+    log(sameSide ? "+" : ">", a, p);
+    S.pick = null;
+    paint();
+  }
+
+  function log(mark, actor, target){
+    S.events.push({ at: Math.round(elapsed()), mark: mark, actor: actor, target: target });
+    if (mark === ">") S.frozen[target] = true; else delete S.frozen[target];
+    say(mark === ">" ? "no" : "yes",
+        mark === ">" ? actor + " caught " + target : actor + " brought " + target + " back");
+  }
+
+  var sayTimer = null;
+  function say(kind, text){
+    var el = $("say");
+    el.className = "say " + (kind || "");
+    el.innerHTML = "";
+    el.appendChild(document.createTextNode(text));
+    clearTimeout(sayTimer);
+    if (kind) sayTimer = setTimeout(paint, 1700);
+  }
+
+  function paint(){
+    if (!S || S.over) return;
+    var left = S.length - elapsed();
+    if (left <= 0) return finish();
+
+    var t = $("t");
+    t.textContent = clock(left);
+    t.className = "t" + (left <= 60 ? " low" : "");
+
+    var tags = S.events.filter(function(e){ return e.mark === ">"; }).length;
+    $("tally").innerHTML = tags + " caught<br>" + (S.events.length - tags) + " back";
+
+    S.teams.forEach(function(team){
+      var up = team.players.filter(function(p){ return !S.frozen[p]; }).length;
+      team.el.head.textContent = up + " of " + team.players.length;
+      [].forEach.call(team.el.chips.children, function(b){
+        var p = b.dataset.p;
+        b.className = "chip" + (S.frozen[p] ? " down" : "") + (S.pick === p ? " sel" : "");
+        b.disabled = false;
+        if (S.pick !== null && S.pick !== p){
+          var same = S.side[S.pick] === S.side[p];
+          b.disabled = same ? !S.frozen[p] : !!S.frozen[p];
+        } else if (S.pick === null && S.frozen[p]) {
+          b.disabled = true;
+        }
+      });
+    });
+
+    if (!sayOverridden()){
+      var el = $("say"); el.className = "say";
+      el.innerHTML = S.pick === null
+        ? "Tap whoever <b>did</b> it."
+        : "Now tap who it happened to. <b>" + S.pick + "</b> is doing it.";
+    }
+    drawFeed($("feed"));
+  }
+  function sayOverridden(){ return $("say").className.indexOf("no") > -1
+                                || $("say").className.indexOf("yes") > -1; }
+
+  function drawFeed(host){
+    host.innerHTML = "";
+    S.events.slice().reverse().forEach(function(e){
+      var row = document.createElement("div"); row.className = "ev";
+      var at = document.createElement("span"); at.className = "at";
+      at.textContent = clock(e.at);
+      var txt = document.createElement("span");
+      txt.innerHTML = "<b></b> <i class='" + (e.mark === ">" ? "v" : "a") +
+                      "' style='font-style:normal'></i> <b></b>";
+      var bs = txt.querySelectorAll("b");
+      bs[0].textContent = e.actor; bs[1].textContent = e.target;
+      txt.querySelector("i").textContent = e.mark === ">" ? "caught" : "brought back";
+      row.appendChild(at); row.appendChild(txt); host.appendChild(row);
+    });
+  }
+
+  // ---- the whistle -------------------------------------------------------
+  function finish(){
+    if (S.over) return;
+    S.over = true; clearInterval(tick);
+    var played = Math.min(S.length, Math.round(elapsed()));
+
+    var rows = S.teams.map(function(t){
+      return { name: t.name, up: t.players.filter(function(p){ return !S.frozen[p]; }).length,
+               all: t.players.length };
+    }).sort(function(a,b){ return b.up - a.up || (a.name < b.name ? -1 : 1); });
+    var top = rows[0].up, winners = rows.filter(function(r){ return r.up === top; });
+
+    $("verdict").textContent = winners.length > 1
+      ? "Drawn " + rows.map(function(r){ return r.up; }).join("–")
+      : winners[0].name + " wins";
+
+    var tags = S.events.filter(function(e){ return e.mark === ">"; }).length;
+    $("rsub").textContent = (S.where ? S.where + " · " : "") + clock(played) +
+      " · " + tags + " caught, " + (S.events.length - tags) + " brought back";
+
+    var cards = $("cards"); cards.innerHTML = "";
+    rows.forEach(function(r){
+      var d = document.createElement("div");
+      d.className = "card" + (r.up === top && winners.length === 1 ? " won" : "");
+      var pips = "";
+      for (var i = 0; i < r.all; i++) pips += '<span class="pip' + (i < r.up ? "" : " down") + '"></span>';
+      d.innerHTML = "<b></b><div class='n'>" + r.up + "<span>/" + r.all +
+                    "</span></div><div class='pips'>" + pips + "</div>";
+      d.querySelector("b").textContent = r.name;
+      cards.appendChild(d);
+    });
+
+    drawChecks(played);
+    drawFeed($("rfeed"));
+
+    var lines = ["# " + (S.where || "match"), "LENGTH " + clock(S.length), ""];
+    S.teams.forEach(function(t){ lines.push(t.name + "  " + t.players.join(", ")); });
+    lines.push("");
+    S.events.forEach(function(e){
+      lines.push(clock(e.at).padStart(5," ") + "  " + e.actor + " " + e.mark + " " + e.target);
+    });
+    $("log").value = lines.join("\n");
+
+    $("match").classList.add("hide");
+    $("result").classList.remove("hide");
+    window.scrollTo(0,0);
+  }
+
+  // The same three thresholds the scorer prints, fixed before any match was
+  // played and not to be loosened afterwards.
+  function drawChecks(played){
+    var W = 300, tags = S.events.filter(function(e){ return e.mark === ">"; });
+    var early = tags.filter(function(e){ return e.at <= W; }).length;
+    var late  = tags.filter(function(e){ return e.at >= played - W; }).length;
+
+    var pending = {}, spells = [];
+    S.events.forEach(function(e){
+      if (e.mark === ">") pending[e.target] = e.at;
+      else if (pending[e.target] !== undefined){ spells.push(e.at - pending[e.target]); delete pending[e.target]; }
+    });
+    Object.keys(pending).forEach(function(k){ spells.push(played - pending[k]); });
+    var mean = spells.length ? spells.reduce(function(a,b){ return a+b; },0) / spells.length : 0;
+
+    var marks = [0].concat(tags.map(function(e){ return e.at; }).sort(function(a,b){ return a-b; })).concat([played]);
+    var gap = 0;
+    for (var i = 1; i < marks.length; i++) gap = Math.max(gap, marks[i] - marks[i-1]);
+
+    var checks = [
+      [late >= early * 0.5, "late tags " + late + " vs early " + early],
+      [mean >= 10, "mean freeze " + Math.round(mean) + "s, need 10s+"],
+      [gap <= 180, "longest quiet stretch " + clock(gap) + ", need 3:00 or less"]
+    ];
+    var host = $("checks");
+    host.innerHTML = "<div class='chk' style='color:var(--dim)'><i>&nbsp;</i>DID IT STAY A GAME</div>";
+    checks.forEach(function(c){
+      var d = document.createElement("div");
+      d.className = "chk " + (c[0] ? "ok" : "bad");
+      d.innerHTML = "<i></i><span></span>";
+      d.querySelector("i").textContent = c[0] ? "ok" : "stalled";
+      d.querySelector("span").textContent = c[1];
+      host.appendChild(d);
+    });
+  }
+
+  // ---- wiring ------------------------------------------------------------
+  $("start").addEventListener("click", function(){
+    var a = names($("p1").value), b = names($("p2").value);
+    var clash = a.filter(function(p){ return b.indexOf(p) > -1; });
+    if (a.length < 1 || b.length < 1) return alert("Both teams need at least one player.");
+    if (clash.length) return alert(clash[0] + " is on both teams.");
+    begin({
+      where: $("where").value.trim(),
+      mins: Math.max(1, Math.min(90, parseInt($("mins").value, 10) || 20)),
+      teams: [{ name: ($("n1").value.trim() || "RED").toUpperCase(), players: a },
+              { name: ($("n2").value.trim() || "BLUE").toUpperCase(), players: b }]
+    });
+  });
+
+  $("undo").addEventListener("click", function(){
+    if (!S || !S.events.length) return;
+    var e = S.events.pop();
+    if (e.mark === ">") delete S.frozen[e.target]; else S.frozen[e.target] = true;
+    S.pick = null; say("", "Took back " + e.actor + " → " + e.target + "."); paint();
+  });
+  $("finish").addEventListener("click", finish);
+  $("again").addEventListener("click", function(){
+    $("result").classList.add("hide"); $("setup").classList.remove("hide"); window.scrollTo(0,0);
+  });
+  $("copy").addEventListener("click", function(){
+    var t = $("log"); t.select(); t.setSelectionRange(0, 99999);
+    try { document.execCommand("copy"); this.textContent = "Copied"; }
+    catch (e) { this.textContent = "Select it and copy"; }
+    var b = this; setTimeout(function(){ b.textContent = "Copy the log"; }, 1600);
+  });
+
+  // A 20 second run through, for the people who are not standing in a park
+  // right now. Same code path as a real match, just a faster clock.
+  $("demo").addEventListener("click", function(){
+    begin({ where: "Gachibowli", mins: 20, demo: true,
+            teams: [{ name: "RED", players: ["gokul","arjun","sai"] },
+                    { name: "BLUE", players: ["daniel","priya","rahul"] }] });
+    S.started = Date.now() - (S.length - 21) * 1000;   // 21 seconds left on the clock
+    var script = [["gokul","priya"],["daniel","priya"],["arjun","daniel"],
+                  ["priya","sai"],["gokul","rahul"],["sai","daniel"]];
+    // sai was caught, so the rescue at index 5 is by somebody standing.
+    script[5] = ["arjun","sai"];
+    var i = 0;
+    var run = setInterval(function(){
+      if (!S || S.over || i >= script.length) return clearInterval(run);
+      var pair = script[i++];
+      var a = pair[0], b = pair[1];
+      if (S.frozen[a]) return;                       // never fake an illegal move
+      var same = S.side[a] === S.side[b];
+      if (same && !S.frozen[b]) return;
+      if (!same && S.frozen[b]) return;
+      log(same ? "+" : ">", a, b);
+      paint();
+    }, 2600);
+  });
+})();
+</script>
+</body>
+</html>
