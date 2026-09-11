@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="A twenty-minute two-team tag match where your side can bring you back.">
+<meta property="og:title" content="Out Baby Out">
+<meta property="og:description" content="Twenty minutes, two sides, and nobody is ever out for good.">
+<title>Out Baby Out</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --field:#0F1310;
+  --panel:#191E17;
+  --chalk:#F2F4E9;
+  --dim:#8C9682;
+  --line:#2C352A;
+  --vish:#E0523B;
+  --amrit:#5FD08A;
+  --hot:#E8FF3F;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;background:var(--field);color:var(--chalk);
+  font:400 17px/1.62 "Instrument Sans","Segoe UI",system-ui,sans-serif;
+  padding:clamp(1.6rem,5vw,3rem) clamp(1rem,4vw,2rem) 4rem;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:42rem;margin:0 auto;display:flex;flex-direction:column;gap:2.9rem;}
+
+h1{
+  font:400 clamp(3.2rem,15vw,6.4rem)/0.82 Anton,Impact,sans-serif;
+  margin:0 0 .8rem;text-transform:uppercase;letter-spacing:.005em;
+  color:var(--hot);text-wrap:balance;
+}
+.lede{font-size:1.24rem;line-height:1.45;margin:0;max-width:26ch;}
+.lede b{color:var(--hot);font-weight:600;}
+.sub{color:var(--dim);margin:.9rem 0 0;max-width:40ch;font-size:1.02rem;}
+.setup{
+  display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.3rem;
+  font:700 .72rem/1 "JetBrains Mono",ui-monospace,monospace;
+  letter-spacing:.08em;text-transform:uppercase;
+}
+.setup span{border:1px solid var(--line);padding:.5rem .6rem;border-radius:3px;color:var(--dim);}
+.setup span b{color:var(--chalk);}
+
+h2{
+  font:400 clamp(1.5rem,5vw,2rem)/1 Anton,Impact,sans-serif;
+  text-transform:uppercase;letter-spacing:.02em;margin:0 0 1rem;
+}
+section > p{margin:0 0 1rem;max-width:56ch;}
+section > p:last-child{margin-bottom:0;}
+
+.moves{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1rem;}
+.move{border:2px solid var(--line);border-radius:5px;padding:1.2rem 1.3rem;background:var(--panel);
+      display:flex;flex-direction:column;gap:.5rem;}
+.move .word{font:400 2.5rem/1 Anton,Impact,sans-serif;text-transform:uppercase;margin:0;}
+.move.v{border-color:var(--vish);} .move.v .word{color:var(--vish);}
+.move.a{border-color:var(--amrit);} .move.a .word{color:var(--amrit);}
+.move .say{font:700 .74rem/1.4 "JetBrains Mono",monospace;letter-spacing:.09em;color:var(--dim);text-transform:uppercase;}
+.move p{margin:0;font-size:.97rem;}
+
+.pull{
+  border-left:3px solid var(--hot);padding:.2rem 0 .2rem 1.3rem;
+  font-size:1.14rem;line-height:1.5;max-width:38ch;
+}
+.pull b{color:var(--hot);}
+
+.beats{display:flex;flex-direction:column;gap:0;}
+.beat{display:grid;grid-template-columns:4.2rem 1fr;gap:1.1rem;padding:.85rem 0;border-bottom:1px solid var(--line);}
+.beat:last-child{border-bottom:0;}
+.beat .t{font:700 .82rem/1.7 "JetBrains Mono",monospace;color:var(--dim);}
+.beat p{margin:0;}
+.beat b{color:var(--chalk);}
+.beat.end .t{color:var(--hot);}
+
+ul.flat{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:.9rem;}
+ul.flat li{display:flex;flex-direction:column;gap:.2rem;}
+ul.flat .k{font:700 .74rem/1 "JetBrains Mono",monospace;letter-spacing:.09em;text-transform:uppercase;color:var(--vish);}
+ul.flat p{margin:0;}
+ul.flat strong{color:var(--chalk);}
+
+pre{
+  background:var(--panel);border:1px solid var(--line);border-radius:5px;
+  padding:1.1rem 1.2rem;overflow-x:auto;margin:0;
+  font:400 .86rem/1.75 "JetBrains Mono",ui-monospace,monospace;color:var(--chalk);
+}
+pre .c{color:var(--dim);}
+pre .v{color:var(--vish);} pre .a{color:var(--amrit);}
+
+.oneRule{border:2px solid var(--hot);border-radius:5px;padding:1.2rem 1.3rem;background:var(--panel);}
+.oneRule p{margin:0 0 .6rem;max-width:52ch;}
+.oneRule p:last-child{margin:0;}
+.oneRule b{color:var(--hot);}
+
+footer{border-top:1px solid var(--line);padding-top:1.2rem;color:var(--dim);font-size:.92rem;max-width:52ch;}
+footer a{color:var(--hot);}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<div>
+  <h1>Out Baby Out</h1>
+  <p class="lede">Twenty minutes, two sides, and <b>nobody is ever out for good</b>.</p>
+  <p class="sub">Kabaddi is tag. Kho kho is tag. Both have professional leagues in this country. This is that, with one rule those don't have — your team can bring you back.</p>
+  <div class="setup">
+    <span><b>8–16</b>&nbsp;players</span>
+    <span><b>2</b>&nbsp;sides</span>
+    <span><b>20</b>&nbsp;min</span>
+    <span>no kit</span>
+    <span>on foot</span>
+  </div>
+</div>
+
+<section>
+  <h2>Two moves. That's the whole game.</h2>
+  <div class="moves">
+    <div class="move v">
+      <p class="word">Vish</p>
+      <p class="say">Poison — you call it as you touch</p>
+      <p>Catch someone from the other side and they drop where they stand. Out of the match, in the middle of the field, watching.</p>
+    </div>
+    <div class="move a">
+      <p class="word">Amrit</p>
+      <p class="say">Nectar — you call it as you reach them</p>
+      <p>Reach a frozen teammate and they're back in, instantly. No limit. Someone can go down and come back five times in one match.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>The decision you keep making</h2>
+  <p class="pull">Every time someone on your side goes down, you have to choose: <b>go and get them, or keep hunting.</b></p>
+  <p>Rescuing costs you. You have to cross the field, in the open, to a spot the other team already knows about — because they put someone there. Chasing is safer and it feels better. It also loses matches, because a side that never rescues just runs out of people.</p>
+  <p>That's the whole thing. Elimination tag is over halfway through and everyone knows it. Here the score swings until the clock stops, and a team three players down can still win.</p>
+</section>
+
+<section>
+  <h2>How a match actually goes</h2>
+  <div class="beats">
+    <div class="beat"><span class="t">0:00</span><p>Both sides spread out fast. Nothing happens for a minute and everybody is nervous.</p></div>
+    <div class="beat"><span class="t">~2:00</span><p>First catch. Whoever it is drops, sits, and immediately starts <b>shouting for someone to come and get them.</b></p></div>
+    <div class="beat"><span class="t">~5:00</span><p>Someone tries the rescue. Now there's a standoff — one frozen player, one defender circling them, and a teammate deciding whether to risk it.</p></div>
+    <div class="beat"><span class="t">~12:00</span><p>One side is down three. They have to choose between defending the lead they don't have and a mass rescue.</p></div>
+    <div class="beat end"><span class="t">20:00</span><p><b>Everyone stops where they stand.</b> Count who's upright. Most players standing wins.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>The rules, all of them</h2>
+  <ul class="flat">
+    <li><span class="k">Frozen is frozen</span><p>Sitting down, you can't catch and you can't rescue. You can talk. Most people find out fast that <strong>talking is half the game</strong>.</p></li>
+    <li><span class="k">Your own side only</span><p>You rescue your team. You catch theirs. You can never free someone from the other side.</p></li>
+    <li><span class="k">Three seconds after a rescue</span><p>Whoever got freed and whoever freed them both get <strong>three seconds</strong> untouchable, counted out loud. Without this, one defender camps a body and rescues are pointless.</p></li>
+    <li><span class="k">Agree the edge before you start</span><p>Say the boundary out loud — this path to that tree. Step outside and you're vish.</p></li>
+  </ul>
+</section>
+
+<section>
+  <h2>One hard rule: on foot</h2>
+  <div class="oneRule">
+    <p><b>No bikes, no scooters, no cars. Not to chase, not to escape, not to cross the field.</b></p>
+    <p>This isn't caution, it's the design. A game that rewards you for closing distance with someone at speed eventually puts a person in hospital, so that version doesn't exist — not as a mode, not as an option. Pick a ground with no traffic running through it and keep the boundary away from the road.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Someone keeps the log</h2>
+  <p>Whoever sits out keeps it on their phone. Minutes into the match, then who did what to whom. It takes about four seconds a line.</p>
+<pre><span class="c"># Gachibowli, Saturday</span>
+LENGTH 20:00
+
+RED   gokul, arjun, sai, meera, dev
+BLUE  daniel, priya, rahul, kiran, anu
+
+02:14  gokul <span class="v">&gt;</span> priya      <span class="c"># caught her</span>
+03:40  daniel <span class="a">+</span> priya     <span class="c"># brought her back</span>
+07:02  priya <span class="v">&gt;</span> sai
+11:48  arjun <span class="a">+</span> sai</pre>
+  <p style="margin-top:1rem;font-size:.95rem;color:var(--dim)"><b style="color:var(--vish)">&gt;</b> caught. <b style="color:var(--amrit)">+</b> brought back. That's the entire format.</p>
+</section>
+
+<footer>
+  Send the log back and it turns into a page with the final score, every catch in order, and who pulled the most people off the floor.
+  Built by Gokul Sai — <a href="https://github.com/gokulsai1004-create">github.com/gokulsai1004-create</a>
+</footer>
+
+</div>
+</body>
+</html>
