@@ -413,6 +413,21 @@ a{color:var(--hot);}
     }
   }
 
+  // Arriving from the field map, which carries the venue and the team names in
+  // the hash. Anything missing simply keeps the default already in the box.
+  (function(){
+    var h = location.hash.replace(/^#/, "");
+    if (!h) return;
+    h.split("&").forEach(function(kv){
+      var i = kv.indexOf("="); if (i < 0) return;
+      var k = kv.slice(0, i), v = decodeURIComponent(kv.slice(i + 1)).trim();
+      if (!v) return;
+      if (k === "n")  $("where").value = v.slice(0, 24);
+      if (k === "t1") $("n1").value = v.slice(0, 12);
+      if (k === "t2") $("n2").value = v.slice(0, 12);
+    });
+  })();
+
   // ---- wiring ------------------------------------------------------------
   $("start").addEventListener("click", function(){
     var a = names($("p1").value), b = names($("p2").value);
