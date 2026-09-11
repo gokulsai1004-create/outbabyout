@@ -24,6 +24,12 @@ external script and it comes from cdnjs.
 team names. It has a demo button that runs six real moves through the same code path
 with twenty one seconds on the clock.
 
+**The rules live in `<script id="rules">`, alone, with no DOM in it.** That block is the
+single copy of the match rules on the web side, and `tests/test_agree.py` lifts it
+verbatim out of this file and runs it in node against `outbabyout.py`. Keep it pure: the
+test asserts it never touches `document.` or `window.`, because the moment it does it
+stops being testable and the two implementations can drift apart unnoticed.
+
 *(If that no longer matches the repo, fix this paragraph before anything else. A prompt
 that lies about the state teaches the session that this file is not to be trusted. It has
 already gone stale once, between commit nine and commit sixteen.)*
@@ -62,4 +68,7 @@ page cannot hold them.
   as normal here and a silent push as not.
 - Check the JavaScript parses before committing: extract the script block and run
   `node --check`. There is no build step to catch a syntax error for you.
+- Run `py -3 -m pytest tests/ -q` before committing a rule change. Twelve tests check
+  that this page and the Python scorer still agree, and they fail if you change one
+  side without the other.
 - If something costs more than twenty minutes, add a line to `docs/CONSTRAINTS.md`.

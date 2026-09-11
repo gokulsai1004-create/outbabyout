@@ -110,6 +110,26 @@ clean phone showed it immediately. Push, wait for the Pages build, then look.
 **Nominatim** (the search box) needs no key either, asks for roughly one request a second,
 and identifies callers by browser Referer, which a normal page supplies.
 
+## The rules exist in two languages, 11 Sept 2026
+
+`outbabyout.py` and the `rules` block of `play.html` both decide whether a move is legal.
+Two implementations that look consistent and are not is the same class of bug as a false
+zero: the console records a match, the scorer refuses it, and nobody finds out until the
+log comes back from a real game.
+
+> `tests/test_agree.py` lifts the JavaScript **verbatim** out of `play.html` and runs it
+> in node against the Python. A copy of the rules inside the test would agree with itself
+> forever and prove nothing. Run it before committing any rule change.
+
+Proved by deleting the frozen-actor guard from the real page: two tests fail, including
+the one written to catch exactly that.
+
+**It found two bugs on its way in, and both were in the test rather than the code.** The
+fixture had a frozen player acting, which the engine threw out, correctly, while the test
+was the thing that was wrong. And the guard asserting the rules block never touches the
+DOM failed on its own comment, which said the words `document` and `window` in order to
+tell the next person not to use them. Look at code, not prose: strip comments first.
+
 ## Rules of this codebase
 
 **A failed read is never a result.** Everywhere: an unreadable log is BLOCKED and exits 2,

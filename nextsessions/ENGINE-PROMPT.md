@@ -13,7 +13,7 @@ on a machine with no Bluetooth adapter.
 
 ## Current state, 11 Sept 2026 — PAUSED
 
-**Sixteen commits, all pushed, working tree clean.** Paused deliberately while Gokul
+**Eighteen commits, all pushed, working tree clean.** Paused deliberately while Gokul
 and Dhrishaj start the opportunity-agent build; this is not abandoned and the next step
 is known.
 
@@ -32,6 +32,11 @@ leads with the result and draws one pip per player.
 `metrics()` reports the three thresholds the council fixed before any match was played:
 late tags against early tags, mean frozen time, longest stretch with nothing happening.
 Proved against a synthetic stalling log, which fails two of the three.
+
+`py -3 -m pytest tests/ -q` runs **twelve crosscheck tests** proving this engine and the
+browser console agree on the rules. They need `node` on PATH and skip cleanly without it.
+**If you change a rule in `play()`, that suite is where you find out whether the console
+still agrees with you.** Change one side only and it fails, which is the point.
 
 *(If that paragraph no longer matches the repo, fix the paragraph first. A prompt that
 lies about the state teaches the session that this file is not to be trusted.)*
