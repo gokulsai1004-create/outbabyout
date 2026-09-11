@@ -198,6 +198,55 @@ def score(teams, frozen):
     return sorted(rows, key=lambda r: (-r[1], r[0]))
 
 
+# The council set these before the first match was played, which is the only
+# time a threshold means anything. They test one claim: that a timer plus
+# unlimited revives keeps a match live to the buzzer instead of letting the
+# losing team stand in a cluster and re-touch each other until time runs out.
+WINDOW = 300          # the first and last five minutes
+LATE_RATIO = 0.5      # late tags must be at least half the early tags
+MIN_FROZEN = 10       # a freeze shorter than this is not a real cost
+MAX_GAP = 180         # three minutes with nothing happening is a stall
+
+
+def metrics(length, tree):
+    """Did the match stay alive? Returns (numbers, [(passed, sentence)]).
+
+    Computed from the log rather than judged by eye, because "it felt close"
+    is exactly the kind of answer this whole project exists to refuse.
+    """
+    tags = [t["at"] for t in tree if t["mark"] == TAG]
+    early = sum(1 for at in tags if at <= WINDOW)
+    late = sum(1 for at in tags if at >= length - WINDOW)
+
+    # How long each freeze actually lasted. A player still frozen at the final
+    # whistle was frozen until the whistle.
+    spells, pending = [], {}
+    for t in tree:
+        if t["mark"] == TAG:
+            pending[t["target"]] = t["at"]
+        elif t["target"] in pending:
+            spells.append(t["at"] - pending.pop(t["target"]))
+    spells.extend(length - at for at in pending.values())
+    mean_frozen = sum(spells) / len(spells) if spells else 0
+
+    # The longest stretch with no tag attempted, counting the run-in from the
+    # start and the run-out to the whistle.
+    marks = [0] + sorted(tags) + [length]
+    gap = max(b - a for a, b in zip(marks, marks[1:])) if len(marks) > 1 else length
+
+    numbers = {"early_tags": early, "late_tags": late, "mean_frozen": mean_frozen,
+               "longest_gap": gap, "total_tags": len(tags)}
+    checks = [
+        (late >= early * LATE_RATIO,
+         "late tags %d vs early %d (need %.0f+)" % (late, early, early * LATE_RATIO)),
+        (mean_frozen >= MIN_FROZEN,
+         "mean freeze %.0fs (need %ds+)" % (mean_frozen, MIN_FROZEN)),
+        (gap <= MAX_GAP,
+         "longest quiet stretch %s (need %s or less)" % (clock(gap), clock(MAX_GAP))),
+    ]
+    return numbers, checks
+
+
 def report(length, teams, frozen, tree):
     rows = score(teams, frozen)
     out = ["", "  %s match, %d players" % (clock(length),
@@ -220,6 +269,19 @@ def report(length, teams, frozen, tree):
     out.append("  %d tags, %d amrits." % (tags, cures))
     if cures:
         out.append("  The amrits are why it was still a game at the end.")
+
+    # Did the match stay alive, or did it stall? Three thresholds, all set
+    # before the first game was played.
+    _, checks = metrics(length, tree)
+    out.append("")
+    out.append("  DID IT STAY A GAME")
+    for passed, sentence in checks:
+        out.append("    %s  %s" % ("ok     " if passed else "STALLED", sentence))
+    if all(p for p, _ in checks):
+        out.append("  All three held. The revive rule did its job here.")
+    else:
+        out.append("  One or more failed. That is the result, not a bad match -")
+        out.append("  it is the measurement the rules were waiting on.")
     out.append("")
     return "\n".join(out)
 
