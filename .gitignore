@@ -1,7 +1,8 @@
 __pycache__/
 match.txt
+win.txt
 rssi.json
 rssi.json.tmp
 soak.json
-*.synthesis.html
 match.html
+win.html

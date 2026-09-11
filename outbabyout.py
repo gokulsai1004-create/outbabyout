@@ -70,6 +70,21 @@ def clock(total):
     return "%d:%02d" % (total // 60, total % 60)
 
 
+def label_of(text):
+    """The first comment line, which is where people write the place.
+
+    `# Gachibowli, Saturday` is what someone types at the top of a log without
+    being asked to. A filename is what the computer happened to call it.
+    """
+    for raw in text.replace("\r\n", "\n").split("\n"):
+        line = raw.strip()
+        if line.startswith("#"):
+            return line.lstrip("#").strip()
+        if line:
+            return ""
+    return ""
+
+
 def parse(text):
     """(length, {team: [players]}, [events]). Raises Bad, never guesses."""
     text = text.replace("\r\n", "\n").replace("\r", "\n")
@@ -233,16 +248,29 @@ text-transform:uppercase;color:var(--hot);margin:0 0 .5rem;letter-spacing:.005em
 .sub{color:var(--dim);margin:0 0 2.4rem;
 font:400 .8rem/1.5 "JetBrains Mono",ui-monospace,Consolas,monospace;
 letter-spacing:.06em;text-transform:uppercase;}
-.score{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));
-gap:1rem;margin:0 0 2.6rem;}
+.score{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));
+gap:1rem;margin:0 0 1.6rem;}
 .team{border:2px solid var(--line);border-radius:5px;background:var(--panel);
-padding:1rem 1.1rem;}
+padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.6rem;}
 .team b{display:block;color:var(--dim);font-weight:700;
 font:700 .72rem/1 "JetBrains Mono",ui-monospace,Consolas,monospace;
-letter-spacing:.11em;text-transform:uppercase;margin-bottom:.5rem;}
+letter-spacing:.11em;text-transform:uppercase;}
 .n{font:400 3rem/1 Anton,Impact,sans-serif;font-variant-numeric:tabular-nums;}
 .n span{font-size:1.1rem;color:var(--dim);}
 .team.won{border-color:var(--hot);} .team.won .n{color:var(--hot);}
+/* One pip per player: upright in amrit green, on the floor in vish red. The
+   final state of the field, readable without counting. */
+.pips{display:flex;flex-wrap:wrap;gap:.34rem;}
+.pip{width:.62rem;height:.62rem;border-radius:50%%;background:var(--amrit);}
+.pip.down{background:var(--vish);}
+.who{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));
+gap:.9rem;margin:0 0 2.4rem;}
+.stat{border-left:3px solid var(--line);padding:.1rem 0 .1rem 1rem;}
+.stat.v{border-color:var(--vish);} .stat.a{border-color:var(--amrit);}
+.stat em{display:block;font-style:normal;color:var(--dim);
+font:700 .68rem/1.5 "JetBrains Mono",ui-monospace,Consolas,monospace;
+letter-spacing:.1em;text-transform:uppercase;}
+.stat strong{font-size:1.06rem;font-weight:600;}
 h2{font:400 1.3rem/1 Anton,Impact,sans-serif;text-transform:uppercase;
 letter-spacing:.02em;margin:0 0 .9rem;}
 table{width:100%%;border-collapse:collapse;font-size:.97rem;}
@@ -257,9 +285,10 @@ footer{margin-top:2.6rem;border-top:1px solid var(--line);padding-top:1.2rem;
 color:var(--dim);font-size:.9rem;}
 </style></head><body>
 <div class="wrap">
-<h1>%(title)s</h1>
+<h1>%(verdict)s</h1>
 <p class="sub">%(sub)s</p>
 <div class="score">%(cards)s</div>
+<div class="who">%(stats)s</div>
 <h2>Every catch, in order</h2>
 <div class="scroll"><table>%(rows)s</table></div>
 <footer>%(foot)s</footer>
@@ -268,13 +297,55 @@ color:var(--dim);font-size:.9rem;}
 """
 
 
+def best(tree, mark):
+    """(name, count) for whoever did the most of one thing, or None on a tie
+    at the top. A shared record is not a record."""
+    tally = {}
+    for t in tree:
+        if t["mark"] == mark:
+            tally[t["actor"]] = tally.get(t["actor"], 0) + 1
+    if not tally:
+        return None
+    high = max(tally.values())
+    leaders = sorted(n for n, c in tally.items() if c == high)
+    return (leaders[0], high) if len(leaders) == 1 else None
+
+
 def page(title, length, teams, frozen, tree):
     rows = score(teams, frozen)
     top = rows[0][1]
-    cards = "".join(
-        '<div class="team %s"><b>%s</b><div class="n">%d<span>/%d</span></div></div>'
-        % ("won" if s == top else "", html.escape(n), s, t)
-        for n, s, t in rows)
+    winners = [n for n, s, _ in rows if s == top]
+
+    # The headline is the result, not the filename. A page about a match that
+    # leads with the word "match" has wasted the only line anyone reads.
+    if len(winners) > 1:
+        verdict = "Drawn %s" % "&ndash;".join(str(s) for _, s, _ in rows)
+    else:
+        verdict = "%s wins" % winners[0]
+
+    cards = []
+    for name, standing, total in rows:
+        pips = "".join('<span class="pip%s"></span>' % ("" if i < standing
+                                                        else " down")
+                       for i in range(total))
+        cards.append('<div class="team %s"><b>%s</b>'
+                     '<div class="n">%d<span>/%d</span></div>'
+                     '<div class="pips">%s</div></div>'
+                     % ("won" if standing == top and len(winners) == 1 else "",
+                        html.escape(name), standing, total, pips))
+    cards = "".join(cards)
+
+    hunter, medic = best(tree, TAG), best(tree, CURE)
+    stats = []
+    if hunter:
+        stats.append('<div class="stat v"><em>Most caught</em>'
+                     '<strong>%s &mdash; %d</strong></div>'
+                     % (html.escape(hunter[0]), hunter[1]))
+    if medic:
+        stats.append('<div class="stat a"><em>Pulled the most off the floor</em>'
+                     '<strong>%s &mdash; %d</strong></div>'
+                     % (html.escape(medic[0]), medic[1]))
+    stats = "".join(stats)
 
     lines = []
     for t in tree:
@@ -290,10 +361,14 @@ def page(title, length, teams, frozen, tree):
     tags = sum(1 for t in tree if t["mark"] == TAG)
     return PAGE % {
         "title": html.escape(title),
-        "sub": "%s &middot; %d players &middot; %d tags, %d amrits"
-               % (clock(length), sum(len(m) for m in teams.values()),
-                  tags, len(tree) - tags),
+        "verdict": verdict,
+        "sub": "Out Baby Out%s &middot; %s &middot; %d players "
+               "&middot; %d caught, %d brought back"
+               % (" &middot; " + html.escape(title) if title else "",
+                  clock(length),
+                  sum(len(m) for m in teams.values()), tags, len(tree) - tags),
         "cards": cards,
+        "stats": stats,
         "rows": "".join(lines),
         "foot": "Scored from the match log. Every line above was called on the "
                 "day; nothing here is inferred.",
@@ -409,7 +484,7 @@ def main():
     print(report(length, teams, frozen, tree))
 
     if args.html:
-        title = os.path.splitext(os.path.basename(args.log))[0]
+        title = label_of(raw)
         out = os.path.splitext(args.log)[0] + ".html"
         with io.open(out, "w", encoding="utf-8", newline="\n") as fh:
             fh.write(page(title, length, teams, frozen, tree))
