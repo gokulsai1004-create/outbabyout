@@ -165,6 +165,29 @@ a{color:var(--hot);}
 </section>
 
 </div>
+<script id="rules">
+/* The rules, as one pure function with no DOM in it.
+ *
+ * This block is deliberately separate from the app below so that
+ * tests/test_agree.py can pull it out and run the exact code this page runs,
+ * then check every answer against outbabyout.py. The rules now exist in two
+ * languages, and two things that look consistent and are not is the same class
+ * of bug as a false zero. Nothing here may touch document or window.
+ */
+function verdict(side, frozen, actor, target){
+  if (!(actor in side))  return { ok:false, why: actor + " is not on any team." };
+  if (!(target in side)) return { ok:false, why: target + " is not on any team." };
+  if (actor === target)  return { ok:false, why: actor + " cannot act on themselves." };
+  if (frozen[actor])     return { ok:false, why: actor + " is frozen and cannot do anything." };
+  var same = side[actor] === side[target];
+  if (same && !frozen[target])
+    return { ok:false, why: target + " is on " + side[actor] + " too, and is not frozen." };
+  if (!same && frozen[target])
+    return { ok:false, why: target + " is already frozen. Somebody on their own team frees them." };
+  return { ok:true, mark: same ? "+" : ">" };
+}
+if (typeof module !== "undefined" && module.exports) module.exports = { verdict: verdict };
+</script>
 <script>
 (function(){
   var $ = function(id){ return document.getElementById(id); };
@@ -236,13 +259,11 @@ a{color:var(--hot);}
     }
     if (p === S.pick){ S.pick = null; return paint(); }
 
-    var a = S.pick, sameSide = S.side[a] === S.side[p];
-    if (sameSide && !S.frozen[p])
-      return say("no", p + " is on " + S.side[a] + " too, and is not frozen.");
-    if (!sameSide && S.frozen[p])
-      return say("no", p + " is already frozen. Somebody on their own team frees them.");
+    // One call, to the same function the crosscheck test runs.
+    var v = verdict(S.side, S.frozen, S.pick, p);
+    if (!v.ok) return say("no", v.why);
 
-    log(sameSide ? "+" : ">", a, p);
+    log(v.mark, S.pick, p);
     S.pick = null;
     paint();
   }
