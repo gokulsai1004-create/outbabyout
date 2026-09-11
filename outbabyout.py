@@ -209,37 +209,62 @@ def report(length, teams, frozen, tree):
     return "\n".join(out)
 
 
-PAGE = """<title>%(title)s</title>
+# The look is fixed in docs/DESIGN.md and is the same on every screen. Vish red
+# and amrit green are semantic here: red only ever means caught, green only ever
+# means brought back. Do not reuse either for emphasis.
+PAGE = """<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>%(title)s</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap">
 <style>
-:root{--ink:#1a1714;--bg:#f5f1ea;--line:#d9d2c6;--hot:#c2410c;--cool:#0f766e;}
-:root:not([data-theme="light"]){}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
---ink:#ece7df;--bg:#14120f;--line:#332e28;--hot:#fb923c;--cool:#5eead4;}}
-:root[data-theme="dark"]{--ink:#ece7df;--bg:#14120f;--line:#332e28;
---hot:#fb923c;--cool:#5eead4;}
-body{background:var(--bg);color:var(--ink);font:16px/1.6 ui-serif,Georgia,serif;
-margin:0;padding:6vh 5vw;max-width:46rem;}
-h1{font-size:clamp(1.8rem,5vw,2.6rem);margin:0 0 .2em;letter-spacing:-.02em;}
-.sub{color:var(--ink);opacity:.6;margin:0 0 2.5rem;}
-.score{display:flex;gap:2rem;flex-wrap:wrap;margin:0 0 2.5rem;}
-.team{flex:1 1 12rem;border-top:2px solid var(--line);padding-top:.7rem;}
-.team b{display:block;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;
-opacity:.6;font-weight:600;}
-.n{font-size:2.6rem;font-variant-numeric:tabular-nums;}
-.n span{font-size:1rem;opacity:.5;}
-.won{color:var(--cool);}
-table{width:100%%;border-collapse:collapse;font-size:.95rem;}
-td{padding:.45rem .6rem;border-bottom:1px solid var(--line);vertical-align:top;}
-td.t{font-variant-numeric:tabular-nums;opacity:.55;width:4.5rem;}
-.tag{color:var(--hot);}.cure{color:var(--cool);}
-.wrap{overflow-x:auto;}
-footer{margin-top:3rem;font-size:.85rem;opacity:.55;}
-</style>
+:root{--field:#0F1310;--panel:#191E17;--chalk:#F2F4E9;--dim:#8C9682;
+--line:#2C352A;--vish:#E0523B;--amrit:#5FD08A;--hot:#E8FF3F;}
+*{box-sizing:border-box;}
+body{background:var(--field);color:var(--chalk);margin:0;
+font:400 17px/1.6 "Instrument Sans","Segoe UI",system-ui,sans-serif;
+padding:clamp(1.6rem,5vw,3rem) clamp(1rem,4vw,2rem) 4rem;
+-webkit-font-smoothing:antialiased;}
+.wrap{max-width:42rem;margin:0 auto;}
+h1{font:400 clamp(2.6rem,11vw,4.4rem)/0.85 Anton,Impact,sans-serif;
+text-transform:uppercase;color:var(--hot);margin:0 0 .5rem;letter-spacing:.005em;}
+.sub{color:var(--dim);margin:0 0 2.4rem;
+font:400 .8rem/1.5 "JetBrains Mono",ui-monospace,Consolas,monospace;
+letter-spacing:.06em;text-transform:uppercase;}
+.score{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));
+gap:1rem;margin:0 0 2.6rem;}
+.team{border:2px solid var(--line);border-radius:5px;background:var(--panel);
+padding:1rem 1.1rem;}
+.team b{display:block;color:var(--dim);font-weight:700;
+font:700 .72rem/1 "JetBrains Mono",ui-monospace,Consolas,monospace;
+letter-spacing:.11em;text-transform:uppercase;margin-bottom:.5rem;}
+.n{font:400 3rem/1 Anton,Impact,sans-serif;font-variant-numeric:tabular-nums;}
+.n span{font-size:1.1rem;color:var(--dim);}
+.team.won{border-color:var(--hot);} .team.won .n{color:var(--hot);}
+h2{font:400 1.3rem/1 Anton,Impact,sans-serif;text-transform:uppercase;
+letter-spacing:.02em;margin:0 0 .9rem;}
+table{width:100%%;border-collapse:collapse;font-size:.97rem;}
+td{padding:.55rem .7rem .55rem 0;border-bottom:1px solid var(--line);
+vertical-align:top;}
+td.t{font:400 .86rem/1.6 "JetBrains Mono",ui-monospace,Consolas,monospace;
+font-variant-numeric:tabular-nums;color:var(--dim);width:4.6rem;}
+td b{font-weight:600;}
+.tag{color:var(--vish);}.cure{color:var(--amrit);}
+.scroll{overflow-x:auto;}
+footer{margin-top:2.6rem;border-top:1px solid var(--line);padding-top:1.2rem;
+color:var(--dim);font-size:.9rem;}
+</style></head><body>
+<div class="wrap">
 <h1>%(title)s</h1>
 <p class="sub">%(sub)s</p>
 <div class="score">%(cards)s</div>
-<div class="wrap"><table>%(rows)s</table></div>
+<h2>Every catch, in order</h2>
+<div class="scroll"><table>%(rows)s</table></div>
 <footer>%(foot)s</footer>
+</div>
+</body></html>
 """
 
 
@@ -247,13 +272,13 @@ def page(title, length, teams, frozen, tree):
     rows = score(teams, frozen)
     top = rows[0][1]
     cards = "".join(
-        '<div class="team"><b>%s</b><div class="n %s">%d<span>/%d</span></div></div>'
-        % (html.escape(n), "won" if s == top else "", s, t)
+        '<div class="team %s"><b>%s</b><div class="n">%d<span>/%d</span></div></div>'
+        % ("won" if s == top else "", html.escape(n), s, t)
         for n, s, t in rows)
 
     lines = []
     for t in tree:
-        verb = "froze" if t["mark"] == TAG else "revived"
+        verb = "caught" if t["mark"] == TAG else "brought back"
         css = "tag" if t["mark"] == TAG else "cure"
         lines.append('<tr><td class="t">%s</td><td><b>%s</b> '
                      '<span class="%s">%s</span> <b>%s</b></td></tr>'
