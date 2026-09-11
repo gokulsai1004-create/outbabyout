@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Out Baby Out — set the field</title>
+<meta name="description" content="Draw the boundary, place the two starts, send one link. Nobody's position is ever shown.">
+<meta property="og:title" content="Out Baby Out — the field">
+<meta property="og:description" content="The boundary and where each side starts, in one link.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{--field:#0F1310;--panel:#191E17;--chalk:#F2F4E9;--dim:#8C9682;
+      --line:#2C352A;--vish:#E0523B;--amrit:#5FD08A;--hot:#E8FF3F;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{margin:0;background:var(--field);color:var(--chalk);
+     font:400 16px/1.5 "Instrument Sans","Segoe UI",system-ui,sans-serif;
+     display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;}
+
+header{padding:max(.9rem,env(safe-area-inset-top)) 1rem .8rem;flex:none;}
+h1{font:400 1.9rem/0.9 Anton,Impact,sans-serif;text-transform:uppercase;
+   color:var(--hot);margin:0 0 .25rem;}
+.sub{color:var(--dim);margin:0;
+     font:700 .68rem/1.4 "JetBrains Mono",ui-monospace,monospace;
+     letter-spacing:.09em;text-transform:uppercase;}
+
+#map{flex:1 1 auto;min-height:14rem;background:var(--panel);}
+.leaflet-container{background:var(--panel);font-family:inherit;}
+.leaflet-control-attribution{background:rgba(15,19,16,.82)!important;color:var(--dim)!important;
+  font-size:10px!important;}
+.leaflet-control-attribution a{color:var(--dim)!important;}
+.leaflet-bar a{background:var(--panel);color:var(--chalk);border-color:var(--line);}
+.leaflet-bar a:hover{background:var(--line);color:var(--hot);}
+
+/* Team starts are yellow and white, never vish red or amrit green: on this
+   project red only ever means caught and green only ever means brought back. */
+.pin{display:flex;align-items:center;justify-content:center;
+     font:400 .95rem/1 Anton,Impact,sans-serif;text-transform:uppercase;
+     width:2.1rem;height:2.1rem;border-radius:50%;border:2px solid var(--field);
+     box-shadow:0 0 0 2px currentColor;}
+.pin.one{background:var(--hot);color:var(--hot);}
+.pin.two{background:var(--chalk);color:var(--chalk);}
+.pin span{color:#12160F;}
+
+.panel{flex:none;padding:.9rem 1rem max(1rem,env(safe-area-inset-bottom));
+       border-top:1px solid var(--line);background:var(--field);}
+.line{display:flex;align-items:center;gap:.7rem;margin-bottom:.7rem;}
+.line label{flex:none;color:var(--dim);width:4.6rem;
+            font:700 .66rem/1.3 "JetBrains Mono",monospace;
+            letter-spacing:.09em;text-transform:uppercase;}
+input[type=text]{flex:1;min-width:0;background:var(--panel);color:var(--chalk);
+  border:2px solid var(--line);border-radius:5px;padding:.6rem .7rem;font:inherit;}
+input[type=text]:focus{outline:none;border-color:var(--hot);}
+input[type=range]{flex:1;accent-color:var(--hot);min-width:0;}
+.val{flex:none;width:4.2rem;text-align:right;color:var(--chalk);
+     font:700 .86rem/1 "JetBrains Mono",monospace;font-variant-numeric:tabular-nums;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;}
+button{font:inherit;cursor:pointer;border-radius:5px;border:2px solid var(--line);
+       background:var(--panel);color:var(--chalk);padding:.75rem;width:100%;}
+button.big{background:var(--hot);color:#12160F;border-color:var(--hot);
+  font:400 1.25rem/1 Anton,Impact,sans-serif;text-transform:uppercase;letter-spacing:.02em;}
+button.ghost{color:var(--dim);}
+.tip{color:var(--dim);font-size:.84rem;margin:.7rem 0 0;}
+.tip b{color:var(--chalk);font-weight:500;}
+a{color:var(--hot);}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>The field</h1>
+  <p class="sub" id="head">Tap the map to move it &middot; drag either start</p>
+</header>
+
+<div id="map"></div>
+
+<div class="panel">
+  <div class="line">
+    <label for="place">Where</label>
+    <input type="text" id="place" placeholder="a park, a street, a campus, anywhere" maxlength="40">
+    <button id="find" style="flex:none;width:auto;padding:.6rem .9rem">Find</button>
+  </div>
+  <div class="line">
+    <label for="r">Boundary</label>
+    <input type="range" id="r" min="40" max="400" step="10" value="140">
+    <span class="val" id="rv">140 m</span>
+  </div>
+  <div class="row2" style="margin-bottom:.6rem">
+    <input type="text" id="t1" value="RED" maxlength="12">
+    <input type="text" id="t2" value="BLUE" maxlength="12">
+  </div>
+  <button class="big" id="share">Copy the link</button>
+  <div class="row2" style="margin-top:.6rem">
+    <button class="ghost" id="here">Use my location</button>
+    <button class="ghost" id="play">Start a match &rarr;</button>
+  </div>
+  <p class="tip" id="tip"><b>Nobody's position is ever shown here.</b> A park, a school ground, a
+  street block, a beach, a rooftop - wherever you want to play. This is the
+  boundary and where each side starts, agreed before the whistle. Where anyone is
+  during the match is something you find out by looking.
+  <a href="./">The rules</a> &middot; <a href="./play.html">the console</a></p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var DEFAULT = [17.4401, 78.3489];        // Gachibowli, as a starting guess only
+
+  // ---- state, all of it, and all of it lives in the URL ------------------
+  var S = { c: DEFAULT.slice(), r: 140, a: null, b: null,
+            n: "", t1: "RED", t2: "BLUE" };
+
+  function readHash(){
+    var h = location.hash.replace(/^#/, "");
+    if (!h) return false;
+    var q = {};
+    h.split("&").forEach(function(kv){
+      var i = kv.indexOf("="); if (i < 0) return;
+      q[kv.slice(0,i)] = decodeURIComponent(kv.slice(i+1));
+    });
+    var nums = function(s){ return (s||"").split(",").map(Number); };
+    var c = nums(q.c), a = nums(q.a), b = nums(q.b);
+    if (c.length !== 2 || !isFinite(c[0]) || !isFinite(c[1])) return false;
+    S.c = c;
+    S.r = Math.max(40, Math.min(400, Number(q.r) || 140));
+    if (a.length === 2 && isFinite(a[0])) S.a = a;
+    if (b.length === 2 && isFinite(b[0])) S.b = b;
+    S.n = (q.n || "").slice(0,28);
+    S.t1 = (q.t1 || "RED").slice(0,12);
+    S.t2 = (q.t2 || "BLUE").slice(0,12);
+    return true;
+  }
+
+  function hash(){
+    var six = function(p){ return p[0].toFixed(6) + "," + p[1].toFixed(6); };
+    return "#c=" + six(S.c) + "&r=" + S.r +
+           "&a=" + six(S.a) + "&b=" + six(S.b) +
+           "&n=" + encodeURIComponent(S.n) +
+           "&t1=" + encodeURIComponent(S.t1) + "&t2=" + encodeURIComponent(S.t2);
+  }
+
+  // Metres north and east, converted to degrees. Good enough at park scale and
+  // it needs no projection library.
+  function offset(c, north, east){
+    var dLat = north / 111320;
+    var dLng = east / (111320 * Math.cos(c[0] * Math.PI / 180));
+    return [c[0] + dLat, c[1] + dLng];
+  }
+  function defaults(){
+    S.a = offset(S.c,  S.r * 0.72, 0);
+    S.b = offset(S.c, -S.r * 0.72, 0);
+  }
+
+  var loaded = readHash();
+  if (!S.a || !S.b) defaults();
+
+  // ---- map ---------------------------------------------------------------
+  var map = L.map("map", { zoomControl: true, attributionControl: true })
+             .setView(S.c, 17);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    maxZoom: 20, subdomains: "abcd",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  }).addTo(map);
+
+  var ring = L.circle(S.c, {
+    radius: S.r, color: "#E8FF3F", weight: 3, opacity: .95,
+    fillColor: "#E8FF3F", fillOpacity: .07
+  }).addTo(map);
+
+  function pin(cls, letter){
+    return L.divIcon({ className: "", iconSize: [34,34], iconAnchor: [17,17],
+      html: '<div class="pin ' + cls + '"><span>' + letter + '</span></div>' });
+  }
+  var mA = L.marker(S.a, { draggable: true, icon: pin("one", "1") }).addTo(map);
+  var mB = L.marker(S.b, { draggable: true, icon: pin("two", "2") }).addTo(map);
+
+  function pull(){ S.a = [mA.getLatLng().lat, mA.getLatLng().lng];
+                   S.b = [mB.getLatLng().lat, mB.getLatLng().lng]; }
+  mA.on("drag", function(){ pull(); paint(); });
+  mB.on("drag", function(){ pull(); paint(); });
+
+  map.on("click", function(e){
+    var shiftLat = e.latlng.lat - S.c[0], shiftLng = e.latlng.lng - S.c[1];
+    S.c = [e.latlng.lat, e.latlng.lng];
+    S.a = [S.a[0] + shiftLat, S.a[1] + shiftLng];   // the starts travel with it
+    S.b = [S.b[0] + shiftLat, S.b[1] + shiftLng];
+    mA.setLatLng(S.a); mB.setLatLng(S.b);
+    paint();
+  });
+
+  // ---- paint -------------------------------------------------------------
+  function paint(){
+    ring.setLatLng(S.c); ring.setRadius(S.r);
+    $("rv").textContent = S.r + " m";
+    var d = Math.round(distance(S.a, S.b));
+    $("head").textContent = S.n
+      ? S.n + " · " + (S.r*2) + " m across · starts " + d + " m apart"
+      : (S.r*2) + " m across · starts " + d + " m apart";
+    history.replaceState(null, "", hash());
+  }
+  function distance(p, q){
+    var R = 6371000, t = Math.PI/180;
+    var dLat = (q[0]-p[0])*t, dLng = (q[1]-p[1])*t;
+    var h = Math.sin(dLat/2)*Math.sin(dLat/2) +
+            Math.cos(p[0]*t)*Math.cos(q[0]*t)*Math.sin(dLng/2)*Math.sin(dLng/2);
+    return 2*R*Math.asin(Math.sqrt(h));
+  }
+
+  // ---- wiring ------------------------------------------------------------
+  $("r").value = S.r; $("place").value = S.n;
+  $("t1").value = S.t1; $("t2").value = S.t2;
+
+  $("r").addEventListener("input", function(){
+    var was = S.r; S.r = Number(this.value);
+    // Keep the starts sitting at the same fraction of the radius.
+    if (was > 0){
+      var k = S.r / was;
+      S.a = [S.c[0] + (S.a[0]-S.c[0])*k, S.c[1] + (S.a[1]-S.c[1])*k];
+      S.b = [S.c[0] + (S.b[0]-S.c[0])*k, S.c[1] + (S.b[1]-S.c[1])*k];
+      mA.setLatLng(S.a); mB.setLatLng(S.b);
+    }
+    paint();
+  });
+  $("place").addEventListener("input", function(){ S.n = this.value.trim(); paint(); });
+  $("t1").addEventListener("input", function(){ S.t1 = this.value.trim() || "RED"; paint(); });
+  $("t2").addEventListener("input", function(){ S.t2 = this.value.trim() || "BLUE"; paint(); });
+
+  $("here").addEventListener("click", function(){
+    var b = this, old = b.textContent;
+    if (!navigator.geolocation){ b.textContent = "No location on this device"; return; }
+    b.textContent = "Finding you…";
+    navigator.geolocation.getCurrentPosition(function(p){
+      S.c = [p.coords.latitude, p.coords.longitude];
+      defaults(); mA.setLatLng(S.a); mB.setLatLng(S.b);
+      map.setView(S.c, 17); paint(); b.textContent = old;
+    }, function(){
+      // A refused or failed lookup must say so, not quietly leave the old pin.
+      b.textContent = "Could not get it — tap the map";
+      setTimeout(function(){ b.textContent = old; }, 2600);
+    }, { enableHighAccuracy: true, timeout: 10000 });
+  });
+
+  // Type anywhere on earth and go there. A failed search says so rather than
+  // leaving the map where it was and letting you think it worked.
+  function find(){
+    var q = $("place").value.trim();
+    var b = $("find"), old = "Find";
+    if (!q){ b.textContent = "Type it first"; setTimeout(function(){ b.textContent = old; }, 1600); return; }
+    b.textContent = "…"; b.disabled = true;
+    fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" +
+          encodeURIComponent(q), { headers: { "Accept": "application/json" } })
+      .then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(rows){
+        b.disabled = false;
+        if (!rows.length){ b.textContent = "Not found";
+          setTimeout(function(){ b.textContent = old; }, 2000); return; }
+        S.c = [Number(rows[0].lat), Number(rows[0].lon)];
+        defaults(); mA.setLatLng(S.a); mB.setLatLng(S.b);
+        map.setView(S.c, 17); paint(); b.textContent = old;
+      })
+      .catch(function(){
+        b.disabled = false; b.textContent = "Search failed";
+        setTimeout(function(){ b.textContent = old; }, 2400);
+      });
+  }
+  $("find").addEventListener("click", find);
+  $("place").addEventListener("keydown", function(e){
+    if (e.key === "Enter"){ e.preventDefault(); find(); }
+  });
+
+  $("share").addEventListener("click", function(){
+    var url = location.origin + location.pathname + hash();
+    var b = this;
+    var done = function(msg){ b.textContent = msg;
+      setTimeout(function(){ b.textContent = "Copy the link"; }, 1800); };
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){ done("Copied"); },
+                                             function(){ prompt("Copy this:", url); });
+    } else { prompt("Copy this:", url); }
+  });
+
+  $("play").addEventListener("click", function(){
+    location.href = "./play.html#n=" + encodeURIComponent(S.n) +
+                    "&t1=" + encodeURIComponent(S.t1) +
+                    "&t2=" + encodeURIComponent(S.t2);
+  });
+
+  paint();
+  if (loaded) map.setView(S.c, 17);
+})();
+</script>
+</body>
+</html>
