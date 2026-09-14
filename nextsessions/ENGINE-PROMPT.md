@@ -17,7 +17,7 @@ on a machine with no Bluetooth adapter.
 and Dhrishaj start the opportunity-agent build; this is not abandoned and the next step
 is known.
 
-There are now three pages live at https://gokulsai1004-create.github.io/outbabyout/ -
+There are now three pages live at https://vgokulsai.github.io/outbabyout/ -
 the rules, a live match console and a field map. They belong to the web session, see
 `WEB-PROMPT.md`. You do not edit them and they do not edit you. The only thing crossing
 that line is the log format: the console prints exactly what this engine reads.

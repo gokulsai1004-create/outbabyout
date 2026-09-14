@@ -10,7 +10,7 @@ You own `index.html`, `play.html` and `field.html`. The engine session owns
 
 ## Current state, 11 Sept 2026
 
-Three pages, all live at **https://gokulsai1004-create.github.io/outbabyout/** and all
+Three pages, all live at **https://vgokulsai.github.io/outbabyout/** and all
 linked to each other. No build step, no framework, no bundler. Leaflet is the only
 external script and it comes from cdnjs.
 
